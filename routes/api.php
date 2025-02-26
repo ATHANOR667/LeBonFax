@@ -254,6 +254,25 @@ Route::controller(\App\Http\Controllers\Admin\AdminGestionEventController::class
     });
 
 
+/**
+ *Gestion des certifications
+ */
+Route::controller(\App\Http\Controllers\Admin\AdminDashboardController::class)
+    ->name('admin.')
+    ->middleware('admin')
+    ->prefix('admin/dashboard')
+    ->group(function (){
+
+        Route::get('calendrier', 'getAchatCalendrier')->name('getAchatCalendrier');
+
+        Route::get('packages', 'getPacksWithCertifsAndBuyers')->name('getPacksWithCertifsAndBuyers');
+
+        Route::get('certifs', 'getCertifsWithBuyers')->name('getCertifsWithBuyers');
+
+        Route::get('find-payment', 'findPayment')->name('findPayment');
+    });
+
+
 
 
 /**
@@ -292,10 +311,12 @@ Route::controller(\App\Http\Controllers\GuestController::class)
 Route::controller(\App\Http\Controllers\PaymentController::class)
     ->name('guest.')
     ->prefix('guest')
-    ->group(function (){
+    ->group(function () {
 
-        Route::post('package-buy', 'package_buy')->name('package_buy');
-        Route::get('payment_status-{data}', 'verify')->name('paymentStatus');
+        Route::post('payment-init', 'initPayment')->name('initPayment');
+        Route::post('return-after-payment', 'returnAfterPayment')->name('returnAfterPayment');
+        Route::get('return-after-payment', 'returnAfterPayment')->name('returnAfterPayment');
+        Route::post('payment_notify', 'notifyPayment')->name('notifyPayment');
 
     });
 

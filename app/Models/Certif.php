@@ -19,13 +19,25 @@ class Certif extends Model
         'categorie',
     ] ;
 
-    public function commandes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function commandes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->belongsToMany(Payment::class);
+        return $this->hasMany(Payment::class);
     }
 
     public function package (): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Pack::class,'certif_pack','pack_id','certif_id');
     }
+
+    public function scopeFormat(): array
+    {
+        return [
+            'nom' => $this->nom,
+            'description' => $this->description,
+            'prix' => $this->prix,
+            'lien' => $this->lien,
+        ];
+    }
+
+
 }

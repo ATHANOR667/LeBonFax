@@ -15,6 +15,10 @@
 ##     Installation des dépendances et démarrage du projet
 
 ---
+### Paramètres a changer en prod
+
+1. URL de retour apres payement (.env)
+2. Vérification ssl lors de la verification du payement (Services/cinetpayServices)
 
 ### Integration des routes : 
 

@@ -32,7 +32,7 @@ class GuestController extends Controller
                 [
                     'status' => 200,
                     'packages' => $packages->get(),
-                    'certifs' => $certif->get(),
+                    'certifs' => $certif->groupBy('categorie')->get(),
                 ]
                 ,200
             );

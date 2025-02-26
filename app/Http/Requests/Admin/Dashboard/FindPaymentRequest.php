@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Admin\ManageCertif;
+namespace App\Http\Requests\Admin\Dashboard;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 
-class AdminDeleteCertifRequest extends FormRequest
+class FindPaymentRequest extends FormRequest
 {
     /**
-     * Détermine si l'utilisateur est autorisé à faire cette requête.
+     * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
@@ -16,27 +16,15 @@ class AdminDeleteCertifRequest extends FormRequest
     }
 
     /**
-     * Récupère les règles de validation pour la requête.
+     * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'id' => 'required|exists:certifs,id'
-        ];
-    }
-
-    /**
-     * Récupère les messages d'erreur personnalisés.
-     *
-     * @return array
-     */
-    public function messages(): array
-    {
-        return [
-            'id.required' => 'L\'ID de la certif est obligatoire.',
-            'id.exists' => 'La certif n\'existe pas.',
+            'field'=> 'required|in:transaction_id,nom,prenom,email',
+            'search'=> 'required|string',
         ];
     }
 

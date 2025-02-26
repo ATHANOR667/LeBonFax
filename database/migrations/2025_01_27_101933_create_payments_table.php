@@ -13,17 +13,25 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
-            $table->string('prenom');
+            $table->string('nom')->nullable();
+            $table->string('prenom')->nullable();
             $table->string('email');
-            $table->string('reference');
             $table->string('telephone')->nullable();
+            $table->string('status');
+            $table->string('devise');
+            $table->string('montant');
+            $table->string('transaction_id')->unique();
+            $table->string('token');
+            $table->string('dateDisponibilite')->nullable();
+            $table->string('motif')->nullable();
+            $table->string('methode')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
 
         Schema::table('payments', function (Blueprint $table) {
-            $table->foreignIdFor(\App\Models\Pack::class);
+            $table->foreignIdFor(\App\Models\Pack::class)->nullable();
+            $table->foreignIdFor(\App\Models\Certif::class)->nullable();
         });
     }
 

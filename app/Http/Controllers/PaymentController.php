@@ -3,177 +3,166 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Guest\PaymentRequest;
-use App\Mail\PaymentFeedback;
 use App\Models\Pack;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
+use App\Models\Certif;
+use App\Models\Payment;
+use App\Services\CinetPayService;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use NotchPay\Exceptions\ApiException;
-use NotchPay\Exceptions\InvalidArgumentException;
-use NotchPay\Exceptions\NotchPayException;
-use NotchPay\NotchPay;
-use NotchPay\Payment;
+use Illuminate\Http\Request;
+
 
 class PaymentController extends Controller
 {
-
-
-    public function package_buy(PaymentRequest $request): \Illuminate\Http\JsonResponse
+    /**
+     * Initialiser un paiement et générer le lien de paiement.
+     *
+     * @param PaymentRequest $request
+     * @return JsonResponse
+     */
+    public function initPayment(PaymentRequest $request): JsonResponse
     {
-        $apiKey = env('NOTCHPAY_API_KEY');
-
-
-        $data = [
-            'pack' => $request->input('pack_id') ,
-            'nom' => $request->input('nom'),
-            'prenom' => $request->input('prenom'),
-            'email' => $request->input('email'),
-            'telephone' => $request->input('telephone'),
-        ] ;
-
-        $data = Crypt::encrypt($data);
+        $validated = $request->validated();
+        $validated['customer_email'] = $validated['email'];
 
         try {
-            NotchPay::setApiKey($apiKey);
-            $tranx = Payment::initialize([
-                'amount' => Pack::find($request->input('pack_id'))->prix,
-                'email' => $request->input('email'),
-                'currency' => 'XAF',
-                'callback' => route('guest.paymentStatus',$data),
-                'reference' => $request->input('email') . '-' . now()->format('d-m-Y-H-i-s'),
-            ]);
+            if ($validated['pack_id'] != null  && $validated['certif_id'] != null) {
+                return response()->json([
+                    'status' => 401 ,
+                    'message' => 'Le pack_id ou le certif_id doit etre null .'
+                ]);
+            }elseif ($validated['certif_id'] != null) {
+                $certif =  Certif::find($validated['certif_id']);
+                $montant = $certif->prix;
+                $transID =   'Certif_' . $certif->id . '-' . $validated['email'] . '-' . now()->format('Y/m/d H:i:s');
+            }elseif($validated['pack_id'] != null){
+                $pack = Pack::find($validated['pack_id']);
+                $montant = $pack->prix;
+                $transID = 'Pack_' . $pack->id . '-' . $validated['email'] . '-' . now()->format('Y/m/d H:i:s');
 
-            return response()->json(
-                [
-                    'status' => 200,
-                    'message' => 'Redirection vers la page de paiement.',
-                    'authorization_url' => $tranx->authorization_url,
-                ]
-                ,200
-            );
-        } catch (NotchPayException $e) {
-            return response()->json(
-                [
-                    'status' => 500,
-                    'message' => 'Erreur lors de l\'initialisation du paiement.',
-                    'error' => $e->getMessage(),
-                ]
-                , 500);
-        }
-    }
-
-    public function verify(Request $request, string $data): \Illuminate\Http\JsonResponse
-    {
-        $apiKey = env('NOTCHPAY_API_KEY');
-
-        try {
-            $data = Crypt::decrypt($data);
-        } catch (\Exception $e) {
-            Log::error('Erreur lors du déchiffrement des données (pack , nom , prenom et email) : ' . $e->getMessage());
-            return response()->json(
-                [
-                    'status' => 500,
-                    'message' => 'Erreur de déchiffrement des données.',
-                    'error' => $e->getMessage(),
-                ]
-                ,500
-            );
-        }
-
-        $reference = $request->input('reference');
-        if (!$reference) {
-            return response()->json(
-                [
-                    'status' => 500,
-                    'message' => 'Référence non fournie.',
-                ]
-                ,500
-            );
-        }
-
-        try {
-            NotchPay::setApiKey($apiKey);
-            $tranx = Payment::verify($reference);
-
-            if ($tranx->transaction->status === 'complete') {
-                $existingTransaction = \App\Models\Payment::where('reference', $reference)->first();
-                if ($existingTransaction) {
-                    return response()->json(
-                        [
-                            'status' => 401,
-                            'message' => 'Cette transaction a déjà été traitée.',
-                        ]
-                        ,401
-                    );
-                }
-
-                try {
-                    \App\Models\Payment::create([
-                        'reference' => $reference,
-                        'email' => $data['email'],
-                        'pack_id' => $data['pack_id'],
-                        'nom' => $data['nom'],
-                        'prenom' => $data['prenom'],
-                        'telephone' => $data['telephone'],
-                    ]);
-
-                    Mail::to($data['email'])->send(new PaymentFeedback(
-                        Pack::find($data['pack_id']),
-                        $reference,
-                        $data['nom'],
-                        $data['prenom'],
-                    ));
-
-                    return response()->json(
-                        [
-                            'status' => 200,
-                            'message' => 'Paiement réussi et traité.',
-                            'reference' => $reference,
-                        ]
-                        ,200
-                    );
-                } catch (\Exception $e) {
-                    Log::error('Achat effectué mais non enregistré ou mail non envoyé : ' . $e->getMessage());
-                    return response()->json(
-                        [
-                            'status' => 500,
-                            'message' => 'Erreur lors de l\'enregistrement de la transaction ou de l\'envoi de l\'email.',
-                            'error' => $e->getMessage(),
-                        ]
-                        ,500
-                    );
-                }
-            } else {
-                return response()->json(
-                    [
-                        'status' => 500,
-                        'message' => 'Paiement échoué.',
-                    ]
-                    ,500
-                );
             }
-        } catch (ApiException $e) {
-            Log::error('Erreur lors de la vérification du paiement : ' . $e->getMessage());
+
+
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
+            return response()->json([
+                'status' => 500 ,
+                'error' => $exception->getMessage() ,
+                'message' => 'Erreur lors de la transaction',
+            ]);
+        }
+
+
+        $formData = [
+            'transaction_id' => $transID,
+            'amount' => (int) $montant,
+            'currency' => $validated['devise'],
+            'customer_name' => $validated['nom'],
+            'customer_surname' => $validated['prenom'],
+            'description' => 'desc',
+            'notify_url' => route('guest.notifyPayment'),
+            'return_url' => route('guest.returnAfterPayment'),
+            'channels' => [ 'MOBILE_MONEY', 'CREDIT_CARD', 'WALLET'],
+            'invoice_data' => [],
+            'customer_email' => $validated['customer_email'] ?? '',
+            'customer_phone_number' => $validated['customer_phone_number'] ?? '',
+            'customer_address' => $validated['customer_address'] ?? '',
+            'customer_city' => $validated['customer_city'] ?? '',
+            'customer_country' => $validated['customer_country'] ?? '',
+            'customer_state' => $validated['customer_state'] ?? '',
+            'customer_zip_code' => $validated['customer_zip_code'] ?? '',
+        ];
+
+
+
+        $cinetPay = new CinetPayService();
+
+        try {
+            $result = $cinetPay->generatePaymentLink($formData);
+
+
+        }catch (GuzzleException $e){
+            Log::error('Erreur lors de la génération du lien de payement : '.$e->getMessage());
+
             return response()->json(
                 [
-                    'status' => 500,
-                    'message' => 'Erreur lors de la vérification du paiement.',
+                    'status' => 500 ,
                     'error' => $e->getMessage(),
-                ]
-                ,500
-            );
-        } catch (InvalidArgumentException $e) {
-            return response()->json(
-                [
-                    'status' => 500,
-                    'message' => 'Erreur interne ',
-                    'error' => $e->getMessage(),
-                ]
-                ,500
+                    'message' => 'Erreur lors de la génération du lien de paiement'
+                ],500
             );
         }
+
+        if ($result['code'] === '201') {
+
+            try {
+                Payment::create([
+                    'transaction_id' => $transID,
+                    'montant' => $montant,
+                    'token' => $result['data']['payment_token'],
+                    'devise' => $validated['devise'],
+                    'nom' => $validated['nom'],
+                    'prenom' => $validated['prenom'],
+                    'email' => $validated['email'],
+                    'status' => 'pending',
+                    'pack_id' => $validated['pack_id'] ?? null,
+                    'certif_id' => $validated['certif_id'] ?? null,
+                ]);
+            }catch (\Exception $exception){
+                Log::error('Erreur lors de la génération du lien de payement : '.$exception->getMessage());
+                return response()->json([
+                    'status' => 500 ,
+                    'error' => $exception->getMessage() ,
+                    'message' =>'Erreur lors de la génération du lien de payement'
+                ]) ;
+            }
+
+            return response()->json([
+                'status' => 201,
+                'message' => 'Lien de paiement généré avec succès.',
+                'data' => $result['data']
+            ],201);
+        }
+
+
+
+        return response()->json([
+            'status' => 500,
+            'message' => 'Une erreur est survenue lors de la génération du lien de paiement.',
+            'data' => $result,
+
+        ], 500);
     }
 
+    /**
+     * Vérifier et mettre à jour le statut d'un payement
+     *
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+
+    public function returnAfterPayment( Request $request): RedirectResponse
+    {
+        $transID = $request->input('transaction_id');
+        $token = $request->input('token');
+
+        session([
+            'transaction_id' => $transID,
+            'token' => $token,
+        ]);
+
+        return redirect(env('RETURN_AFTER_PAYMENT'))->with([]);
+
+    }
+
+    public function notifyPayment(): JsonResponse
+    {
+        return response()->json([
+            'status' => 200,
+        ]);
+    }
 
 }

@@ -35,6 +35,26 @@ class Pack extends Model
         return max($prixFinal, 0);
     }
 
+    public function commandes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function scopeFormat(): array
+    {
+        return [
+            'nom' => $this->nom,
+            'description' => $this->description,
+            'prix' => $this->prix,
+            'reduction' => $this->reduction,
+            'image' => $this->image,
+            'certifs' => $this->certifs->map(function ($certif) {
+                return $certif->format();
+            }),
+        ];
+    }
+
+
 
 
 }

@@ -49,7 +49,7 @@ Cette route permet à l'utilisateur de recuperer la liste des packs et des certi
                 {
                     "id": 1,
                     "nom": "John",
-                    "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps::youtube.com",
+                    "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps://youtube.com",
                     "prix": "100",
                     "categorie": "BTP",
                     "image": null,
@@ -78,33 +78,62 @@ Cette route permet à l'utilisateur de recuperer la liste des packs et des certi
             "certifs": []
         }
     ],
-    "certifs": [
-        {
-            "id": 1,
-            "nom": "John",
-            "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps::youtube.com",
-            "prix": "100",
-            "categorie": "BTP",
-            "image": null,
-            "lien": null,
-            "deleted_at": null,
-            "created_at": "2025-01-29T09:55:33.000000Z",
-            "updated_at": "2025-01-29T09:55:33.000000Z"
-        },
-        {
-            "id": 2,
-            "nom": "John",
-            "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps::youtube.com",
-            "prix": "100",
-            "categorie": "BTP",
-            "image": "certifs/GqAClEgLmpjDPA59HHSNYdZPrMHQl2juHh0ul3xt.png",
-            "lien": null,
-            "deleted_at": null,
-            "created_at": "2025-01-29T09:57:53.000000Z",
-            "updated_at": "2025-01-29T09:57:53.000000Z"
-        }
-    ]
+    "certifs": {
+        "BTP": [
+            {
+                "id": 1,
+                "nom": "John",
+                "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps://youtube.com",
+                "prix": "100",
+                "categorie": "BTP",
+                "image": null,
+                "lien": null,
+                "deleted_at": null,
+                "created_at": "2025-01-29T09:55:33.000000Z",
+                "updated_at": "2025-01-29T09:55:33.000000Z"
+            },
+            {
+                "id": 2,
+                "nom": "John",
+                "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps://youtube.com",
+                "prix": "100",
+                "categorie": "BTP",
+                "image": "certifs/GqAClEgLmpjDPA59HHSNYdZPrMHQl2juHh0ul3xt.png",
+                "lien": null,
+                "deleted_at": null,
+                "created_at": "2025-01-29T09:57:53.000000Z",
+                "updated_at": "2025-01-29T09:57:53.000000Z"
+            }
+        ],
+        "Informatique": [
+            {
+                "id": 3,
+                "nom": "Alice",
+                "description": "Desc 1",
+                "prix": "200",
+                "categorie": "Informatique",
+                "image": "certifs/alice_image.png",
+                "lien": null,
+                "deleted_at": null,
+                "created_at": "2025-01-30T09:55:33.000000Z",
+                "updated_at": "2025-01-30T09:55:33.000000Z"
+            },
+            {
+                "id": 4,
+                "nom": "Alice",
+                "description": "Desc 2",
+                "prix": "200",
+                "categorie": "Informatique",
+                "image": null,
+                "lien": null,
+                "deleted_at": null,
+                "created_at": "2025-01-30T10:10:33.000000Z",
+                "updated_at": "2025-01-30T10:10:33.000000Z"
+            }
+        ]
+    }
 }
+
 ````
 -`400`
 - `500`: Erreur interne

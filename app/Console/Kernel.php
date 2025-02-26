@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
          $schedule->command('app:clean-expired-tokens')->hourly();
          $schedule->command('app:images:delete-unused')->hourly();
+         $schedule->command('app:verify-payment')->everyMinute();
     }
 
     /**
