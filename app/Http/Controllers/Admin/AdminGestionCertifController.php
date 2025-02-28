@@ -21,7 +21,7 @@ class AdminGestionCertifController extends Controller
             return response()->json([
                 'status' => 200,
                 'certifs' => $certifs->get()->groupBy('categorie'),
-                'deletedCertifs' => $deletedCertifs->get(),
+                'deletedCertifs' => $deletedCertifs->get()->groupBy('categorie'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
