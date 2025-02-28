@@ -26,13 +26,14 @@ class GuestController extends Controller
         try {
             $packages = Pack::withoutTrashed()->with('certifs')->withCount('certifs as nombre_de_certifs');
 
-            $certif = Certif::withoutTrashed();
+
+            $certifs = Certif::withoutTrashed()->get()->groupBy('categorie');
 
             return response()->json(
                 [
                     'status' => 200,
                     'packages' => $packages->get(),
-                    'certifs' => $certif->groupBy('categorie')->get(),
+                    'certifs' => $certifs,
                 ]
                 ,200
             );
