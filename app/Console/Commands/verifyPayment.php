@@ -1,85 +1,110 @@
 <?php
 
+
 namespace App\Console\Commands;
 
+use App\Mail\CertifInvoice;
+use App\Mail\PackInvoice;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Services\CinetPayService;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class verifyPayment extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:verify-payment';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Vérifie les paiements en attente avec le service CinetPay';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     */
     public function handle(): void
     {
         try {
-            $payments = Payment::where('status', 'pending')
-                ->where('created_at', '<=', Carbon::now()->subMinutes(10))
-                ->get();
+            $this->processPendingPayments();
+        } catch (\Exception $e) {
+            Log::error('Erreur globale du commande : ' . $e->getMessage());
+            $this->error('Erreur critique : ' . $e->getMessage());
+        }
+    }
 
-            if ($payments->isEmpty()) {
-                $this->info('Aucun paiement en attente trouvé.');
-                return;
+    private function processPendingPayments(): void
+    {
+        $payments = Payment::where('status', 'pending')
+            ->where('created_at', '<=', Carbon::now()->subMinutes(1))
+            ->cursor();
+
+        if ($payments->isEmpty()) {
+            $this->info('Aucun paiement en attente trouvé.');
+            return;
+        }
+
+        foreach ($payments as $payment) {
+            $this->handlePayment($payment);
+        }
+
+        $this->info('Traitement des paiements terminé.');
+    }
+
+    private function handlePayment(Payment $payment): void
+    {
+        try {
+            $result = (new CinetPayService())->checkPayment(
+                $payment->transaction_id,
+                $payment->token
+            );
+
+            $this->updatePaymentStatus($payment, $result);
+        } catch (\Exception $e) {
+            Log::error("Erreur paiement {$payment->id}: " . $e->getMessage());
+            $this->error("Erreur traitement paiement {$payment->id}: " . $e->getMessage());
+        }
+    }
+
+    private function updatePaymentStatus(Payment $payment, array $result): void
+    {
+        if ($result['code'] === '00') {
+            $this->markPaymentCompleted($payment, $result);
+        } else {
+            $this->markPaymentFailed($payment, $result);
+        }
+    }
+
+    private function markPaymentCompleted(Payment $payment, array $result): void
+    {
+        $payment->update([
+            'status' => 'completed',
+            'methode' => $result['data']['payment_method'],
+            'devise' => $result['data']['currency'],
+            'dateDisponibilite' => $result['data']['fund_availability_date']
+        ]);
+
+        $this->dispatchEmailJob($payment);
+        $this->info("Paiement {$payment->transaction_id} complété. Email en file d'attente.");
+    }
+
+    private function markPaymentFailed(Payment $payment, array $result): void
+    {
+        $payment->update([
+            'status' => 'failed',
+            'motif' => $result['message']
+        ]);
+
+        $this->error("Échec paiement {$payment->transaction_id}: {$result['message']}");
+    }
+
+    private function dispatchEmailJob(Payment $payment): void
+    {
+        try {
+            if ($payment->email) {
+                $mailable = $payment->certif_id
+                    ? new CertifInvoice($payment)
+                    : new PackInvoice($payment);
+
+                Mail::to($payment->email)->queue($mailable);
             }
-
-            foreach ($payments as $payment) {
-                $transID = $payment->transaction_id;
-                $token = $payment->token;
-
-                $cinetPay = new CinetPayService();
-                $result = $cinetPay->checkPayment($transID, $token);
-
-                if ($result['code'] == '00') {
-                    $payment->status = 'completed';
-                    $payment->methode = $result['data']['payment_method'];
-                    $payment->devise = $result['data']['currency'];
-                    $payment->dateDisponibilite = $result['data']['fund_availability_date'];
-                    $payment->save();
-                    $this->info("Paiement {$transID} vérifié et marqué comme complété.");
-                } elseif ($result['code'] == '627' && $result['message'] == 'TRANSACTION_CANCEL') {
-                    $payment->status = 'failed';
-                    $payment->motif = $result['message'];
-                    $payment->save();
-                    $this->error("Paiement {$transID} échoué : Transaction annulée.");
-                } else {
-                    $payment->status = 'failed';
-                    $payment->motif = $result['message'];
-                    $payment->save();
-                    $this->error("Paiement {$transID} échoué : {$result['message']}");
-                }
-            }
-
-            $this->info('Les paiements ont été vérifiés avec succès.');
-
-        } catch (GuzzleException $e) {
-            Log::error('Erreur lors de la vérification du paiement : ' . $e->getMessage());
-            $this->error('Erreur lors de la communication avec le service de paiement : ' . $e->getMessage());
-        } catch (\Exception $exception) {
-            Log::error('Erreur lors de la vérification du paiement : ' . $exception->getMessage());
-            $this->error('Erreur lors de la vérification du paiement : ' . $exception->getMessage());
+        } catch (\Exception $e) {
+            Log::error("Erreur envoi email {$payment->id}: " . $e->getMessage());
+            $this->error("Erreur envoi email {$payment->id}: " . $e->getMessage());
         }
     }
 }

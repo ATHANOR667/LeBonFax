@@ -22,13 +22,15 @@ class ContactUsRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'required|min:3|max:20|string',
             'email' => 'required|email',
             'subject' => 'required',
             'message' => 'required|min:3|max:500|string',
+            'pays' => 'required',
+            'contact' =>'required'
         ];
     }
 
@@ -37,7 +39,7 @@ class ContactUsRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'name.required' => 'Le champ nom est obligatoire',
@@ -49,6 +51,8 @@ class ContactUsRequest extends FormRequest
             'message.required' => 'le champ message est obligatoire',
             'message.min' => 'le champ message fait minimum 3 caractères',
             'message.max' => 'le champ message fait maximum 500 caractères',
+            "pays.required" => "le champ pays est obligatoire",
+            "contact.required" => "le champ contact est obligatoire"
         ];
     }
 

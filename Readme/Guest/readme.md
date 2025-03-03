@@ -159,7 +159,9 @@ Cette route permet à l'utilisateur de laisser un message a notre adresse.
     "name" : "Djiepmo Marc" ,
     "email" : "John@doe.cm" ,
     "message": "jkfbksgbkjdkjkjdsbhfjkqsdhsdkfdkgbkjfqlkgbksdhfgbjbsgkjdsbhgkjhbdqgkdjfgbkjsdbhkjhfbjkdbshgjkfhb" ,
-    "subject" : "sur les reseaux sociaux" /** Comment nous avez vous connu  */
+    "subject" : "azerty",/* comment vous nous avez connu*/
+    "pays" : "cameroun",
+    "contact" : "655443322"
 }
 ````
 

@@ -60,9 +60,9 @@ class GuestController extends Controller
         try {
             $validatedData = $request->validated();
 
-            Mail::to('mdjiepmo@gmail.com')->send(new Collab($validatedData['name'], $validatedData['subject'], $validatedData['message']));
+            Mail::to(env('MAIL_SUPPORT'))->send(new Collab($validatedData['name'], $validatedData['subject'], $validatedData['message'],$validatedData['pays'],$validatedData['contact']));
 
-            Mail::to($validatedData['email'])->send(new CollabFeedBack($validatedData['name'], $validatedData['subject'], $validatedData['message']));
+            Mail::to($validatedData['email'])->send(new CollabFeedBack($validatedData['name'], $validatedData['subject'], $validatedData['message'],$validatedData['pays'],$validatedData['contact']));
 
             return response()->json([
                 'status' => 200,

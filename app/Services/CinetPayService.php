@@ -40,6 +40,8 @@ class CinetPayService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => ($formData) ,
+                'verify' => false,
+
             ]);
 
             return json_decode($response->getBody(), true);

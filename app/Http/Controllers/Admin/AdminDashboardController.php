@@ -19,6 +19,7 @@ class AdminDashboardController extends Controller
             $field = $request->get('field');
             $search = $request->get('search');
             $payment = Payment::withTrashed()
+                ->where('status','completed' )
                 ->where($field,  'LIKE', "%$search%")
                 ->with(['pack.certifs', 'certif'])
                 ->get();
@@ -40,6 +41,7 @@ class AdminDashboardController extends Controller
     {
         try {
             $oldestPayment = Payment::whereNotNull('dateDisponibilite')
+                ->where('status','completed' )
                 ->orderBy('dateDisponibilite', 'asc')->first();
             if (!$oldestPayment) {
                 return response()->json([]); // Aucun paiement trouvé
@@ -60,6 +62,7 @@ class AdminDashboardController extends Controller
                     $monthName = Carbon::create()->month($month)->translatedFormat('F');
 
                     $payments = Payment::whereYear('dateDisponibilite', $year)
+                        ->where('status','completed' )
                         ->whereMonth('dateDisponibilite', $month)
                         ->with(['pack.certifs', 'certif'])
                         ->get();
@@ -164,7 +167,9 @@ class AdminDashboardController extends Controller
                         'pack' => $pack->format(),
                         'nombre_acheteurs' => $pack->commandes_count,
                         'acheteurs' => $pack->commandes->map(function($payment) {
-                            return $payment->format();
+                            if ($payment->status == 'completed') {
+                                return $payment->format();
+                            }
                         })
                     ];
                 });
@@ -194,7 +199,9 @@ class AdminDashboardController extends Controller
                         'certif' => $certif->format(),
                         'nombre_acheteurs' => $certif->commandes_count,
                         'acheteurs' => $certif->commandes->map(function($payment) {
-                            return $payment->format();
+                            if ($payment->status == 'completed') {
+                                return $payment->format();
+                            }
                         }),
                     ];
                 });
