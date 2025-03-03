@@ -54,7 +54,7 @@ Route::controller(\App\Http\Controllers\SuperAdmin\SuperAdminAuthController::cla
  */
 Route::controller(\App\Http\Controllers\SuperAdmin\SuperAdminAuthController::class)
     ->name('superAdmin.')
-    ->middleware('superadmin')
+    ->middleware(\App\Http\Middleware\SuperAdminMiddleware::class)
     ->prefix('superadmin')
     ->group(function ()
     {
@@ -92,7 +92,7 @@ Route::controller(\App\Http\Controllers\SuperAdmin\SuperAdminAuthController::cla
 
 Route::controller(\App\Http\Controllers\SuperAdmin\GestionAdminController::class)
     ->name('superAdmin.')
-    ->middleware('superadmin')
+    ->middleware(\App\Http\Middleware\SuperAdminMiddleware::class)
     ->prefix('superadmin')
     ->group(function ()
     {
@@ -152,7 +152,7 @@ Route::controller(\App\Http\Controllers\Admin\AdminAuthController::class)
  */
 Route::controller(\App\Http\Controllers\Admin\AdminAuthController::class)
     ->name('admin.')
-    ->middleware('admin')
+    ->middleware(\App\Http\Middleware\AdminMiddleware::class)
     ->prefix('admin')
     ->group(function ()
     {
@@ -193,7 +193,7 @@ Route::controller(\App\Http\Controllers\Admin\AdminAuthController::class)
  */
 Route::controller(\App\Http\Controllers\Admin\AdminGestionPackController::class)
     ->name('admin.')
-    ->middleware('admin')
+    ->middleware(\App\Http\Middleware\AdminMiddleware::class)
     ->prefix('admin')
     ->group(function (){
         Route::get('package-list', 'package_list')->name('package_list');
@@ -219,7 +219,7 @@ Route::controller(\App\Http\Controllers\Admin\AdminGestionPackController::class)
  */
 Route::controller(\App\Http\Controllers\Admin\AdminGestionCertifController::class)
     ->name('admin.')
-    ->middleware('admin')
+    ->middleware(\App\Http\Middleware\AdminMiddleware::class)
     ->prefix('admin')
     ->group(function (){
         Route::get('certif-list', 'certif_list')->name('certif_list');
@@ -239,7 +239,7 @@ Route::controller(\App\Http\Controllers\Admin\AdminGestionCertifController::clas
  */
 Route::controller(\App\Http\Controllers\Admin\AdminGestionEventController::class)
     ->name('admin.')
-    ->middleware('admin')
+    ->middleware(\App\Http\Middleware\AdminMiddleware::class)
     ->prefix('admin')
     ->group(function (){
         Route::get('event-list', 'event_list')->name('event_list');
@@ -259,7 +259,7 @@ Route::controller(\App\Http\Controllers\Admin\AdminGestionEventController::class
  */
 Route::controller(\App\Http\Controllers\Admin\AdminDashboardController::class)
     ->name('admin.')
-    ->middleware('admin')
+    ->middleware(\App\Http\Middleware\AdminMiddleware::class)
     ->prefix('admin/dashboard')
     ->group(function (){
 
@@ -328,7 +328,7 @@ Route::controller(\App\Http\Controllers\PaymentController::class)
 //
 //Route::controller(\App\Http\Controllers\Admin\AdminManageClientController::class)
 //    ->name('admin.')
-//    ->middleware('admin')
+//    ->$this->middleware(\App\Http\Middleware\AdminMiddleware::class)
 //    ->prefix('admin')
 //    ->group(function ()
 //    {

@@ -37,6 +37,7 @@ Cette route permet à l'admin de récupérer la liste des certifs .
         "prix": "100",
         "description": "jkbkhbzrkhbkjrhkhujhhv  \n\nkvjhgjgjgjhgjhgjhgjhgjgjhgjhgj\n\n\nhttps::youtube.com",
         "image": "certifs/GqAClEgLmpjDPA59HHSNYdZPrMHQl2juHh0ul3xt.png",
+        "lien" : "https:Cisco.com" ,
         "updated_at": "2025-01-29T09:57:53.000000Z",
         "created_at": "2025-01-29T09:57:53.000000Z",
         "id": 2

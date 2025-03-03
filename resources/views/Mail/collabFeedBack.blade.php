@@ -140,6 +140,8 @@
 
     <div class="recap">
         <p><strong>Vous avez entendu parler de nous via :</strong> {{ $sujet }}</p>
+        <p><strong>Vous nous venez du pays :</strong> {{ $pays }}</p>
+        <p><strong>Votre contact est  :</strong> {{ $contact }}</p>
         <p><strong>Votre message était :</strong></p>
         <p>{{ $content }}</p>
     </div>

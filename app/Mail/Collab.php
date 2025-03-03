@@ -16,15 +16,19 @@ class Collab extends Mailable
     public  string $name;
     public  string $sujet;
     public  string $content;
+    public string $pays ;
+    public string $contact ;
 
     /**
      * Create a new content instance.
      */
-    public function __construct($name , $sujet, $content)
+    public function __construct($name , $sujet, $content , $pays , $contact )
     {
         $this->name = $name;
         $this->sujet = $sujet;
         $this->content = $content;
+        $this->pays = $pays;
+        $this->contact = $contact;
     }
 
     /**

@@ -20,7 +20,7 @@
 1. URL de retour apres payement (.env)
 2. Vérification ssl lors de la verification du payement (Services/cinetpayServices)
 
-### Integration des routes : 
+### Integration des routes :
 
 Un guide complet de l'api est disponible dans le dossier readme
 
@@ -42,9 +42,8 @@ Exécutez la commande suivante pour générer une nouvelle clé d'application :
 - les parametres de la bd si necessaire (sqlite par defaut)
 - faites **php artisan migrate** pour migrer la BD
 - faites **php artisan db:seed** pour initier les parametres par defaut
-- faites **php artisan schedule:work** pour executer les taches chron  necessaires au bon fonctionnement du projet 
-
-
+- faites **php artisan schedule:work** pour executer les taches chron  necessaires au bon fonctionnement du projet
+- faites **php artisan queue:work --tries=3 --timeout=120** pour lancer les taches en liste d'attente
 
 
 

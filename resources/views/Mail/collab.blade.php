@@ -82,6 +82,8 @@
     <h1>Nouveau message</h1>
 
     <p><strong>Expéditeur :</strong> {{ $name }}</p>
+    <p><strong>Pays :</strong> {{ $pays }}</p>
+    <p><strong>Numéro de télephone :</strong> {{ $contact }}</p>
     <p><strong>Source de la prise de contact :</strong> {{ $sujet }}</p>
 
     <div class="divider"></div>
