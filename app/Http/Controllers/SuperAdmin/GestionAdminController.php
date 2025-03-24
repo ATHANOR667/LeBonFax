@@ -89,7 +89,17 @@ class GestionAdminController extends Controller
     {
         try {
             $data = $request->validated();
-            $admin = Admin::find($data['id']);
+            $admin = Admin::withoutTrashed()->find($data['id']);
+            if ($admin === null) {
+                return response()->json(
+                    [
+                        'status' => 404,
+                        'message ' => 'Admin non trouvé.',
+                        'admin' => $admin,
+                    ]
+                    ,404
+                );
+            }
             $admin->update(Arr::except($data , 'id'));
             $admin->save();
             return response()->json(
@@ -126,7 +136,17 @@ class GestionAdminController extends Controller
     {
         try {
             $data = $request->validated();
-            $admin = Admin::find($data['id']);
+            $admin = Admin::withoutTrashed()->find($data['id']);
+            if ($admin === null) {
+                return response()->json(
+                    [
+                        'status' => 404,
+                        'message ' => 'Admin non trouvé.',
+                        'admin' => $admin,
+                    ]
+                    ,404
+                );
+            }
             $admin->delete();
             return response()->json(
                 [

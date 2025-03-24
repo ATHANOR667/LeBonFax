@@ -38,7 +38,9 @@ Route::controller(\App\Http\Controllers\SuperAdmin\SuperAdminAuthController::cla
     ->prefix('superadmin')
     ->group(function (){
 
-        Route::post('/login', 'login')->name('login');
+        Route::post('/login', 'login')
+            ->middleware('throttle:super-admin-login')
+            ->name('login');
 
         Route::get('/default', 'default')->name('default');
 
@@ -137,7 +139,9 @@ Route::controller(\App\Http\Controllers\Admin\AdminAuthController::class)
         Route::patch('/signin-process', 'signin_process')->name('signin_process');
 
 
-        Route::post('/login', 'login')->name('login');
+        Route::post('/login', 'login')
+            ->middleware('throttle:login')
+            ->name('login');
 
 
         Route::post('/password-reset-while-dissconnected-init', 'password_reset_while_dissconnected_init')->name('password_reset_while_dissconnected_init');
